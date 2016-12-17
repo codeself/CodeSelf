@@ -10,5 +10,6 @@ default:
 clean:
 	rm -rf *.o *~ core .depend .*.cmd *.ko *.mod.c .tmp_versions
 	rm -rf Module.* modules.*
+	rm .*.d
 
 .PHONY: default clean
