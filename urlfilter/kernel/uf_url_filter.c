@@ -67,7 +67,7 @@ static void uf_url_policy_ts_clean(void)
 	struct list_head *p, *n;
 	struct uf_url_ts *url_policy_ts_temp = NULL;
 
-	spin_lock(&spin_urlfilter_policy);
+	spin_lock_bh(&spin_urlfilter_policy);
 	list_for_each_safe(p, n, &url_policy_ts_head) {
 		url_policy_ts_temp = list_entry(p, struct uf_url_ts, list);
 
@@ -83,14 +83,14 @@ static void uf_url_policy_ts_clean(void)
 		list_del_rcu(p);
 		kfree(url_policy_ts_temp);
 	}
-	spin_unlock(&spin_urlfilter_policy);
+	spin_unlock_bh(&spin_urlfilter_policy);
 }
 
 static void uf_url_policy_ts_add(struct uf_url_ts *url_policy_ts_new)
 {
-	spin_lock(&spin_urlfilter_policy);
+	spin_lock_bh(&spin_urlfilter_policy);
 	list_add_tail_rcu(&url_policy_ts_new->list, &url_policy_ts_head);
-	spin_unlock(&spin_urlfilter_policy);
+	spin_unlock_bh(&spin_urlfilter_policy);
 }
 
 static void uf_url_policy_ts_fini(void)
@@ -113,10 +113,10 @@ static int uf_url_filter_cr_lf_ts_init(void)
 
 static void uf_url_filter_cr_lf_ts_fini(void)
 {
-	spin_lock(&spin_urlfilter_crlf);
+	spin_lock_bh(&spin_urlfilter_crlf);
 	if (conf_cr_lf)
 		textsearch_destroy(conf_cr_lf);
-	spin_unlock(&spin_urlfilter_crlf);
+	spin_unlock_bh(&spin_urlfilter_crlf);
 }
 
 static int uf_url_policy_to_ts(void)
@@ -345,9 +345,9 @@ static char* uf_http_find_cr_lf(char *payload, int payload_len)
 	char *cr_lf = NULL;
 	struct ts_state state;
 
-	spin_lock(&spin_urlfilter_crlf);
+	spin_lock_bh(&spin_urlfilter_crlf);
 	pos = textsearch_find_continuous(conf_cr_lf, &state, payload, payload_len);
-	spin_unlock(&spin_urlfilter_crlf);
+	spin_unlock_bh(&spin_urlfilter_crlf);
 	if (pos >= 0)
 		cr_lf = payload + pos;
 
